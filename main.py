@@ -11,12 +11,21 @@ from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # ---------- Proxy (IPRoyal Residential - NO) ----------
+from urllib.parse import quote  # ← legg til denne importen
+
+# ---------- Proxy (IPRoyal Residential - NO) ----------
 PROXY_HOST = "geo.iproyal.com"
 PROXY_PORT = 12321
-PROXY_USERNAME = "IX793Q5mJLdxDQDA"
-PROXY_PASSWORD = "IYURzEcPE2Klkbkg_country-no"
+RAW_USER = "IX793Q5mJLdxDQDA"
+RAW_PASS = "IYURzEcPE2Klkbkg_country-no"
+
+# URL-enkod brukernavn og passord for sikker autentisering
+PROXY_USERNAME = quote(RAW_USER, safe="")
+PROXY_PASSWORD = quote(RAW_PASS, safe="")
+
 PROXY_URL = f"http://{PROXY_USERNAME}:{PROXY_PASSWORD}@{PROXY_HOST}:{PROXY_PORT}"
 PROXIES = {"http": PROXY_URL, "https": PROXY_URL}
+
 
 # ---------- Konfig ----------
 BASE_URL = "https://www.finn.no/mobility/search/car?price_from=1500&registration_class=1&sales_form=1"
