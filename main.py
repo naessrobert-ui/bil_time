@@ -14,15 +14,16 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import quote  # ← legg til denne importen
 
 # ---------- Proxy (IPRoyal Residential - NO) ----------
+# ---------- Proxy (IPRoyal Residential - NO) ----------
 PROXY_HOST = "geo.iproyal.com"
 PROXY_PORT = 12321
-PROXY_USERNAME = "IX793Q5mJLdxDQDA"
+PROXY_USERNAME = "lX793Q5mJLdxDQDA"  # merk liten L i starten
 PROXY_PASSWORD = "Hel25eneLeki4_country-no"
 
 PROXY_URL = f"http://{PROXY_USERNAME}:{PROXY_PASSWORD}@{PROXY_HOST}:{PROXY_PORT}"
 PROXIES = {
     "http": PROXY_URL,
-    "https": PROXY_URL
+    "https": PROXY_URL,
 }
 
 
