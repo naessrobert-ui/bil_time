@@ -16,15 +16,15 @@ from urllib.parse import quote  # ← legg til denne importen
 # ---------- Proxy (IPRoyal Residential - NO) ----------
 PROXY_HOST = "geo.iproyal.com"
 PROXY_PORT = 12321
-RAW_USER = "IX793Q5mJLdxDQDA"
-RAW_PASS = "IYURzEcPE2Klkbkg_country-no"
-
-# URL-enkod brukernavn og passord for sikker autentisering
-PROXY_USERNAME = quote(RAW_USER, safe="")
-PROXY_PASSWORD = quote(RAW_PASS, safe="")
+PROXY_USERNAME = "IX793Q5mJLdxDQDA"
+PROXY_PASSWORD = "Hel25eneLeki4_country-no"
 
 PROXY_URL = f"http://{PROXY_USERNAME}:{PROXY_PASSWORD}@{PROXY_HOST}:{PROXY_PORT}"
-PROXIES = {"http": PROXY_URL, "https": PROXY_URL}
+PROXIES = {
+    "http": PROXY_URL,
+    "https": PROXY_URL
+}
+
 
 
 # ---------- Konfig ----------
