@@ -349,65 +349,70 @@ def upload_to_s3(file_name, bucket_name, object_name=None):
 
 # ---------- HOVED ----------
 def main():
-    dato_og_time = time.strftime("%d-%m-%Y_%H")
+    dato_og_time = time.strftime ("%d-%m-%Y_%H")
     file_name = f"biler_siste_{dato_og_time}.csv"
 
     # Verifiser proxy-IP én gang
     try:
-        test_s = make_session()
-        ip = test_s.get("https://ipv4.icanhazip.com/", timeout=15).text.strip()
-        print("Proxy på IP:", ip)
+        test_s = make_session ()
+        ip = test_s.get ("https://ipv4.icanhazip.com/", timeout=15).text.strip ()
+        print ("Proxy på IP:", ip)
     except Exception as e:
-        print("Advarsel: Klarte ikke å verifisere proxy-IP:", e)
+        print ("Advarsel: Klarte ikke å verifisere proxy-IP:", e)
 
-    print(f"Starter scraping → {file_name}")
-    t0 = time.perf_counter()
+    print (f"Starter scraping → {file_name}")
+    t0 = time.perf_counter ()
 
     total_cars = 0
-    with open(file_name, "w", newline="", encoding="utf-16") as csv_file:
-        writer = csv.writer(csv_file, delimiter=";")
-        writer.writerow([
+    with open (file_name, "w", newline="", encoding="utf-16") as csv_file:
+        writer = csv.writer (csv_file, delimiter=";")
+        writer.writerow ([
             "FinnKode", "Bilmerke", "Merke", "Modell", "Info", "Årstall", "Kjørelengde",
             "Girkasse", "Drivstoff", "Rekkevidde", "Pris",
             "Selger", "Sted", "Garanti (mnd)", "Forhandler type", "Service oppgitt"
         ])
 
-        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+        with ThreadPoolExecutor (max_workers=MAX_WORKERS) as ex:
             futures = []
-            for page in range(1, MAX_PAGES + 1):
-                sess = make_session()  # egen session per tråd
-                futures.append(ex.submit(scrape_page, sess, page))
+            for page in range (1, MAX_PAGES + 1):
+                sess = make_session ()  # egen session per tråd
+                futures.append (ex.submit (scrape_page, sess, page))
 
-            for fut in as_completed(futures):
+            for fut in as_completed (futures):
                 try:
-                    rows = fut.result()
+                    rows = fut.result ()
                     if rows:
-                        writer.writerows(rows)
-                        total_cars += len(rows)
-                        csv_file.flush()
+                        writer.writerows (rows)
+                        total_cars += len (rows)
+                        csv_file.flush ()
                 except Exception as e:
-                    print("En oppgave genererte en feil:", e)
+                    print ("En oppgave genererte en feil:", e)
 
-    dt = time.perf_counter() - t0
-    print(f"\nScraping ferdig! Fant totalt {total_cars} biler på {MAX_PAGES} sider.")
-    print(f"Det tok {dt:.2f} sekunder.")
+    dt = time.perf_counter () - t0
+    print (f"\nScraping ferdig! Fant totalt {total_cars} biler på {MAX_PAGES} sider.")
+    print (f"Det tok {dt:.2f} sekunder.")
 
     # S3 (valgfritt)
-    s3_bucket_name = os.environ.get('S3_BUCKET_NAME')
+    s3_bucket_name = os.environ.get ('S3_BUCKET_NAME')
     uploaded = False
     if total_cars > 0 and s3_bucket_name:
-        uploaded = upload_to_s3(file_name, s3_bucket_name)
+        # ---------- DEN ENESTE ENDRINGEN ER HER ----------
+        # Vi bygger den fulle filstien for S3 med riktig undermappe
+        s3_object_name = f"raw/bil-time/{file_name}"
+
+        # Vi sender den nye filstien med til opplastingsfunksjonen
+        uploaded = upload_to_s3 (file_name, s3_bucket_name, object_name=s3_object_name)
+        # --------------------------------------------------
     elif total_cars > 0:
-        print("S3_BUCKET_NAME ikke satt → hopper over S3.")
+        print ("S3_BUCKET_NAME ikke satt → hopper over S3.")
 
     # Slett lokal fil bare hvis opplastet
-    if uploaded and os.path.exists(file_name):
+    if uploaded and os.path.exists (file_name):
         try:
-            os.remove(file_name)
-            print(f"Slettet midlertidig fil: {file_name}")
+            os.remove (file_name)
+            print (f"Slettet midlertidig fil: {file_name}")
         except OSError as e:
-            print(f"Feil ved sletting av lokal fil: {e}")
-
+            print (f"Feil ved sletting av lokal fil: {e}")
 
 if __name__ == "__main__":
     main()
